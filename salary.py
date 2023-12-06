@@ -39,6 +39,8 @@ def calculate_extra_hours(entry, exit):
 		entry_time = entry_time.replace(minute=0, second=0)
 	elif entry_time.hour < 9 and entry_time.minute >= 35:
 		entry_time = entry_time.replace(hour=9, minute=0, second=0)
+	elif entry_time.hour < 9 and entry_time.minute >= 35:
+		entry_time = entry_time.replace(minute=0, second=0)
 	elif entry_time.minute > 40:
 		entry_time = entry_time.replace(hour=entry_time.hour + 1, minute=0, second=0)
 	elif entry_time.minute < 20:
@@ -46,9 +48,11 @@ def calculate_extra_hours(entry, exit):
 	else:
 		entry_time = entry_time.replace(minute=30, second=0)
 
-	if exit_time.hour > 18 and exit_time.minute > 25:
+	if exit_time.hour >= 18 and exit_time.minute > 25:
 		exit_time = exit_time.replace(minute=30, second=0)
-	elif exit_time.hour > 18 and exit_time.minute > 55:
+	elif exit_time.hour >= 18 and exit_time.minute > 55:
+		exit_time = exit_time.replace(minute=0, second=0)
+	elif exit_time.hour >= 18 and exit_time.minute <= 25:
 		exit_time = exit_time.replace(minute=0, second=0)
 	elif exit_time.minute > 40:
 		exit_time = exit_time.replace(hour=exit_time.hour + 1, minute=0, second=0)
