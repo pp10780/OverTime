@@ -33,14 +33,28 @@ def calculate_extra_hours(entry, exit):
 	entry_time = datetime.strptime(entry, '%H:%M:%S')
 	exit_time = datetime.strptime(exit, '%H:%M:%S')
 
-	if entry_time.minute > 40:
+	if entry_time.hour < 9 and entry_time.minute < 35:
+		entry_time = entry_time.replace(minute=30, second=0)
+	elif entry_time.hour < 9 and entry_time.minute < 15:
+		entry_time = entry_time.replace(minute=0, second=0)
+	elif entry_time.hour < 9 and entry_time.minute >= 35:
+		entry_time = entry_time.replace(hour=9, minute=0, second=0)
+	elif entry_time.hour < 9 and entry_time.minute >= 35:
+		entry_time = entry_time.replace(minute=0, second=0)
+	elif entry_time.minute > 40:
 		entry_time = entry_time.replace(hour=entry_time.hour + 1, minute=0, second=0)
 	elif entry_time.minute < 20:
 		entry_time = entry_time.replace(minute=0, second=0)
 	else:
 		entry_time = entry_time.replace(minute=30, second=0)
 
-	if exit_time.minute > 40:
+	if exit_time.hour >= 18 and exit_time.minute > 25:
+		exit_time = exit_time.replace(minute=30, second=0)
+	elif exit_time.hour >= 18 and exit_time.minute > 55:
+		exit_time = exit_time.replace(minute=0, second=0)
+	elif exit_time.hour >= 18 and exit_time.minute <= 25:
+		exit_time = exit_time.replace(minute=0, second=0)
+	elif exit_time.minute > 40:
 		exit_time = exit_time.replace(hour=exit_time.hour + 1, minute=0, second=0)
 	elif exit_time.minute < 20:
 		exit_time = exit_time.replace(minute=0, second=0)
@@ -59,12 +73,14 @@ def calculate_extra_hours(entry, exit):
 # Detects the extra hours besides the entry, lunch start, lunch end and exit times and removes them from the date and stores them in a list
 def detect_incorrect_hours(date):
 	incorrect_hours = []
-	for i in range(1, len(date) - 2):
+	for i in range(1, len(date) - 1):
 		time = datetime.strptime(date['tempo'][i], '%H:%M:%S')
 		if time.hour < 12 or time.hour > 14:
 			incorrect_hours.append(date['tempo'][i])
 		date = date.drop(i)
 		date = date.reset_index(drop=True)
+		if len(date) == 4:
+			break
 
 	return date, incorrect_hours
 
@@ -97,7 +113,7 @@ def store_date(worker_id, date):
 		entry_date = date['tempo'][0]
 		lunch_start = date['tempo'][1]
 		lunch_end = date['tempo'][2]
-		exit_time = date['tempo'][len(date) - 1]
+		exit_time = date['tempo'][3]
 		extra_hours = calculate_extra_hours(entry_date, exit_time)
 
 
