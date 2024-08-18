@@ -22,12 +22,24 @@ def total_hours(worker_id):
 
 	workers[worker_id] = pd.concat([workers[worker_id], final], ignore_index=True)
 
-def is_lunch_time(entry_time, exit_time):
+def is_lunch_time(entry_time, lunch_start, lunch_end, exit_time):
+
+	if lunch_start != 'Nan' and lunch_end != 'Nan':
+		# Calculate difference between lunch start and end
+		lunch_start_time = datetime.strptime(lunch_start, '%H:%M:%S')
+		lunch_end_time = datetime.strptime(lunch_end, '%H:%M:%S')
+		lunch_difference = (lunch_end_time - lunch_start_time).total_seconds()
+
+		# See if lunch time is less than 40 minutes
+		if lunch_difference / 60 < 40:
+			return 0.5
+		
 	if entry_time.hour <= 13 and exit_time.hour > 14:
 		return 1
+	
 	return 0
 
-def calculate_extra_hours(entry, exit):
+def calculate_extra_hours(entry, lunch_start, lunch_end, exit):
 	extra_hours = 0
 	# Convert the entry and exit times to datetime objects
 	entry_time = datetime.strptime(entry, '%H:%M:%S')
@@ -52,7 +64,7 @@ def calculate_extra_hours(entry, exit):
 	difference = (exit_time - entry_time).total_seconds() / 3600
 
 	# Convert the difference to hours
-	extra_hours = round(difference, 2) - 8 - is_lunch_time(entry_time, exit_time)
+	extra_hours = round(difference, 2) - 8 - is_lunch_time(entry_time, lunch_start, lunch_end, exit_time)
 
 	return extra_hours
 
@@ -98,7 +110,7 @@ def store_date(worker_id, date):
 		lunch_start = date['tempo'][1]
 		lunch_end = date['tempo'][2]
 		exit_time = date['tempo'][len(date) - 1]
-		extra_hours = calculate_extra_hours(entry_date, exit_time)
+		extra_hours = calculate_extra_hours(entry_date, lunch_start, lunch_end, exit_time)
 
 
 	elif len(date) == 1:
@@ -114,7 +126,7 @@ def store_date(worker_id, date):
 		lunch_end = 'Nan'
 		exit_time = date['tempo'][1]
 		negative_hours = calculate_neg_hours(exit_time)
-		extra_hours = calculate_extra_hours(entry_date, exit_time)
+		extra_hours = calculate_extra_hours(entry_date, lunch_start, lunch_end, exit_time)
 
 	
 	elif len(date) == 3:
@@ -123,14 +135,14 @@ def store_date(worker_id, date):
 		lunch_start = date['tempo'][1]
 		lunch_end = 'Nan'
 		exit_time = date['tempo'][2]
-		extra_hours = calculate_extra_hours(entry_date, exit_time)
+		extra_hours = calculate_extra_hours(entry_date, lunch_start, lunch_end, exit_time)
 
 	elif len(date) == 4:
 		entry_date = date['tempo'][0]
 		lunch_start = date['tempo'][1]
 		lunch_end = date['tempo'][2]
 		exit_time = date['tempo'][3]
-		extra_hours = calculate_extra_hours(entry_date, exit_time)
+		extra_hours = calculate_extra_hours(entry_date, lunch_start, lunch_end, exit_time)
 	
 	if extra_hours < 0:
 		negative_hours = 0
