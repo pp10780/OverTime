@@ -45,33 +45,21 @@ def calculate_extra_hours(entry, lunch_start, lunch_end, exit):
 	entry_time = datetime.strptime(entry, '%H:%M:%S')
 	exit_time = datetime.strptime(exit, '%H:%M:%S')
 
-	if entry_time.hour < 9 and entry_time.minute < 35:
-		entry_time = entry_time.replace(minute=30, second=0)
-	elif entry_time.hour < 9 and entry_time.minute < 15:
-		entry_time = entry_time.replace(minute=0, second=0)
-	elif entry_time.hour < 9 and entry_time.minute >= 35:
-		entry_time = entry_time.replace(hour=9, minute=0, second=0)
-	elif entry_time.hour < 9 and entry_time.minute >= 35:
-		entry_time = entry_time.replace(minute=0, second=0)
-	elif entry_time.minute > 40:
-		entry_time = entry_time.replace(hour=entry_time.hour + 1, minute=0, second=0)
-	elif entry_time.minute < 20:
-		entry_time = entry_time.replace(minute=0, second=0)
-	else:
-		entry_time = entry_time.replace(minute=30, second=0)
+	# 0 - 20 min goes to 0 hours, 20 - 40 min goes to 0.5 hours, 40 - 60 min goes to 1 hour
 
-	if exit_time.hour >= 18 and exit_time.minute > 25:
-		exit_time = exit_time.replace(minute=30, second=0)
-	elif exit_time.hour >= 18 and exit_time.minute > 55:
-		exit_time = exit_time.replace(minute=0, second=0)
-	elif exit_time.hour >= 18 and exit_time.minute <= 25:
-		exit_time = exit_time.replace(minute=0, second=0)
-	elif exit_time.minute > 40:
-		exit_time = exit_time.replace(hour=exit_time.hour + 1, minute=0, second=0)
-	elif exit_time.minute < 20:
-		exit_time = exit_time.replace(minute=0, second=0)
+	if entry_time.minute < 20:
+		entry_time = entry_time.replace(minute=0, second=0)
+	elif entry_time.minute < 40:
+		entry_time = entry_time.replace(minute=30, second=0)
 	else:
+		entry_time = entry_time.replace(hour=entry_time.hour + 1, minute=0, second=0)
+
+	if exit_time.minute < 20:
+		exit_time = exit_time.replace(minute=0, second=0)
+	elif exit_time.minute < 40:
 		exit_time = exit_time.replace(minute=30, second=0)
+	else:
+		exit_time = exit_time.replace(hour=exit_time.hour + 1, minute=0, second=0)
 
 
 	# Calculate the difference between the entry and exit times
