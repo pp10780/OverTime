@@ -1,1 +1,1 @@
-python3 -m PyInstaller OverTime.py
+python3 -m PyInstaller .\OverTime.py --onefile --noconsole
